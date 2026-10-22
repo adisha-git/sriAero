@@ -1,26 +1,255 @@
 @import "tailwindcss";
 
+/* ------------------------------------------------------------------ */
+/* SriAero design tokens                                               */
+/* ------------------------------------------------------------------ */
+@theme {
+  --color-navy: #0b1b2b;
+  --color-navy-800: #102539;
+  --color-navy-700: #163049;
+  --color-horizon: #1e4d7b;
+  --color-horizon-600: #255d93;
+  --color-sky: #8ec5e8;
+  --color-aluminium: #c9d1d9;
+  --color-amber: #e8a33d;
+  --color-amber-300: #f0bb6a;
+  --color-cloud: #f5f7fa;
+  --color-ink: #0b1b2b;
+  --color-slate: #4a5b6c; /* body text on light, 6.9:1 on white */
+  --color-mist: #a9b8c6; /* secondary text on navy, 8.6:1 */
+
+  --font-display: var(--font-space-grotesk), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  --ease-flight: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@layer base {
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --header-h: 72px;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: calc(var(--header-h) + 16px);
+  -webkit-tap-highlight-color: transparent;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-cloud);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  text-rendering: optimizeLegibility;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-display);
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+
+p {
+  text-wrap: pretty;
+}
+
+::selection {
+  background: var(--color-sky);
+  color: var(--color-navy);
+}
+
+/* Visible, consistent focus ring everywhere */
+:focus-visible {
+  outline: 2px solid var(--color-amber);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+}
+
+/* ------------------------------------------------------------------ */
+/* Reusable patterns                                                   */
+/* ------------------------------------------------------------------ */
+@utility blueprint {
+  background-color: var(--color-navy);
+  background-image:
+    linear-gradient(rgb(142 197 232 / 0.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(142 197 232 / 0.07) 1px, transparent 1px),
+    linear-gradient(rgb(142 197 232 / 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(142 197 232 / 0.035) 1px, transparent 1px);
+  background-size:
+    120px 120px,
+    120px 120px,
+    24px 24px,
+    24px 24px;
+  background-position: -1px -1px;
+}
+
+@utility label-mono {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  line-height: 1rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+@utility container-x {
+  width: 100%;
+  max-width: 80rem;
+  margin-inline: auto;
+  padding-inline: 1rem;
+  @media (width >= 40rem) {
+    padding-inline: 1.5rem;
+  }
+  @media (width >= 64rem) {
+    padding-inline: 2rem;
+  }
+}
+
+/* Metallic shine sweep — add `shine` to any element with position:relative + overflow:hidden */
+@utility shine {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  &::after {
+    content: "";
+    position: absolute;
+    inset: -20% auto -20% 0;
+    width: 45%;
+    background: linear-gradient(
+      100deg,
+      transparent 0%,
+      rgb(255 255 255 / 0) 20%,
+      rgb(255 255 255 / 0.38) 50%,
+      rgb(255 255 255 / 0) 80%,
+      transparent 100%
+    );
+    transform: translateX(-160%) skewX(-18deg);
+    pointer-events: none;
+    z-index: 1;
+  }
+  &:hover::after,
+  &:focus-visible::after {
+    transform: translateX(330%) skewX(-18deg);
+    transition: transform 0.9s var(--ease-flight);
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Keyframes                                                           */
+/* ------------------------------------------------------------------ */
+@keyframes runway-light {
+  0% {
+    opacity: 0.12;
+    transform: scale(0.6);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1.15);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes preloader-out {
+  to {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+
+@keyframes radar-sweep {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes pin-pulse {
+  0% {
+    transform: scale(0.5);
+    opacity: 0.9;
+  }
+  100% {
+    transform: scale(2.6);
+    opacity: 0;
+  }
+}
+
+@keyframes drift {
+  from {
+    transform: translateX(-4%);
+  }
+  to {
+    transform: translateX(4%);
+  }
+}
+
+@keyframes takeoff {
+  0% {
+    transform: translate(-40px, 0) rotate(0deg);
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  55% {
+    transform: translate(40px, 0) rotate(0deg);
+  }
+  100% {
+    transform: translate(140px, -46px) rotate(-18deg);
+    opacity: 0;
+  }
+}
+
+@keyframes beacon {
+  0%,
+  100% {
+    opacity: 0.25;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Reduced motion: stop every decorative animation and transition      */
+/* ------------------------------------------------------------------ */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+  .motion-hide {
+    display: none !important;
+  }
 }

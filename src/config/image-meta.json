@@ -1,0 +1,70 @@
+{
+  "cabin-cessna": {
+    "width": 2400,
+    "height": 1600
+  },
+  "cabin-jet-leather": {
+    "width": 2400,
+    "height": 1800
+  },
+  "cockpit-panel": {
+    "width": 2400,
+    "height": 1600
+  },
+  "floatplane-lake": {
+    "width": 2400,
+    "height": 1600
+  },
+  "fuselage-aluminium": {
+    "width": 2400,
+    "height": 1598
+  },
+  "hangar-silhouette": {
+    "width": 2400,
+    "height": 1600
+  },
+  "helicopter-helipad": {
+    "width": 1584,
+    "height": 1800
+  },
+  "jet-g550": {
+    "width": 2400,
+    "height": 1489
+  },
+  "jet-golden-hour": {
+    "width": 2400,
+    "height": 1535
+  },
+  "jet-tarmac-blue": {
+    "width": 2400,
+    "height": 1600
+  },
+  "piston-tarmac": {
+    "width": 2400,
+    "height": 3598
+  },
+  "propeller-black": {
+    "width": 2400,
+    "height": 1596
+  },
+  "propeller-vintage": {
+    "width": 2400,
+    "height": 3600
+  },
+  "rockies-banff": {
+    "width": 2400,
+    "height": 1800
+  },
+  "rockies-gondola": {
+    "width": 2000,
+    "height": 1332
+  },
+  "turboprop-spinner": {
+    "width": 2400,
+    "height": 1600
+  },
+  "warbird-night": {
+    "width": 2400,
+    "height": 1600
+  }
+}

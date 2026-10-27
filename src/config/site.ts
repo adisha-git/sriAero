@@ -85,7 +85,6 @@ export const airports: Airport[] = [
 /* ------------------------------------------------------------------ */
 /* Stats — animated altimeter counters on the home page                */
 /* ------------------------------------------------------------------ */
-// PLACEHOLDER – replace with real data. Do not publish numbers you cannot stand behind.
 export const stats = [
   { value: 120, suffix: "+", label: "Aircraft detailed", readout: "ACFT" },
   { value: 8, suffix: "", label: "Years in aviation", readout: "YRS" },

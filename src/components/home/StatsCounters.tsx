@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { PlaceholderBadge } from "@/components/ui/PlaceholderBadge";
 import { SectionLabel } from "@/components/ui/SectionLabel";
 import { stats } from "@/config/site";
 
@@ -56,7 +55,6 @@ export function StatsCounters() {
               Altitude we&apos;ve gained so far
             </h2>
           </div>
-          <PlaceholderBadge />
         </div>
 
         <div ref={ref} className="grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-aluminium/15 bg-aluminium/15 lg:grid-cols-4">

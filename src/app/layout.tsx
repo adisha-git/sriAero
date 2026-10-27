@@ -39,6 +39,10 @@ export const viewport: Viewport = {
   themeColor: "#0B1B2B",
 };
 
+// Runs before the home page's preloader overlay is parsed. The overlay only plays on the first full load of
+// "/" in a session; anywhere else it's hidden, including client-side navigation back to the home page.
+const preloaderScript = `try{if(sessionStorage.getItem("sa-pre")||location.pathname!=="/"){document.documentElement.dataset.preloaded="1"}else{sessionStorage.setItem("sa-pre","1")}}catch(e){}`;
+
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
@@ -47,6 +51,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       // The preloader script sets data-preloaded on <html> before hydration.
       suppressHydrationWarning
     >
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: preloaderScript }} />
+      </head>
       <body className="flex min-h-dvh flex-col pb-[76px] sm:pb-0">
         <a
           href="#main"

@@ -25,7 +25,7 @@ export const site = {
   // PLACEHOLDER – replace with real data (your production domain, no trailing slash)
   url: "https://www.sriaero.ca",
 
-  /** While true, sample testimonials, stats and certifications show a small "Sample" tag. */
+  /** While true, sample testimonials and other placeholder content show a small "Sample" tag. */
   showPlaceholderBadges: true, // PLACEHOLDER – set to false once everything below is real
 
   contact: {
@@ -100,16 +100,6 @@ export const trustItems = [
   { label: "Aviation-approved products", readout: "AMM-SAFE", placeholder: false },
   { label: "Fully insured", readout: "INSURED", placeholder: false },
   { label: "Calgary-based", readout: "CYYC", placeholder: false },
-];
-
-/**
- * Certifications / memberships shown on the About page.
- * PLACEHOLDER – replace with real data. Leave the array empty to hide the block.
- */
-export const certifications: { name: string; detail: string }[] = [
-  { name: "[Insurance provider]", detail: "Aviation ground-operations liability — $[X]M" },
-  { name: "[Product certification]", detail: "Manufacturer training, e.g. coating installer certification" },
-  { name: "[Association membership]", detail: "e.g. regional aviation or business-aviation association" },
 ];
 
 /* ------------------------------------------------------------------ */

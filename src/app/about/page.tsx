@@ -5,7 +5,7 @@ import { Picture } from "@/components/ui/Picture";
 import { PlaceholderBadge } from "@/components/ui/PlaceholderBadge";
 import { Reveal } from "@/components/ui/Reveal";
 import { SectionLabel } from "@/components/ui/SectionLabel";
-import { certifications, site } from "@/config/site";
+import { site } from "@/config/site";
 import { pageMetadata } from "@/lib/seo";
 
 export const metadata = pageMetadata({
@@ -86,25 +86,6 @@ export default function AboutPage() {
           </ul>
         </div>
       </section>
-
-      {certifications.length > 0 && (
-        <section aria-labelledby="credentials-title" className="bg-white py-24 sm:py-32">
-          <div className="container-x">
-            <SectionLabel index="03">Credentials</SectionLabel>
-            <h2 id="credentials-title" className="mt-4 flex flex-wrap items-center gap-3 text-4xl font-medium text-navy sm:text-5xl">
-              Insurance, training & memberships <PlaceholderBadge />
-            </h2>
-            <ul className="mt-10 grid gap-4 sm:grid-cols-3">
-              {certifications.map((c) => (
-                <li key={c.name} className="rounded-xl border border-aluminium p-4">
-                  <p className="font-display font-medium text-navy">{c.name}</p>
-                  <p className="mt-1 text-sm text-slate">{c.detail}</p>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </section>
-      )}
 
       <section aria-label="Alberta skies" className="relative h-[42vh] min-h-72 overflow-hidden bg-navy">
         <Picture name="rockies-gondola" alt="Rocky Mountain peaks under a dramatic cloudy sky near Banff, Alberta" className="h-full w-full object-cover opacity-80" />

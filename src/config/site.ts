@@ -103,30 +103,26 @@ export const trustItems = [
 ];
 
 /* ------------------------------------------------------------------ */
-/* Testimonials — PLACEHOLDER entries only                             */
+/* Testimonials                                                        */
 /* ------------------------------------------------------------------ */
-// PLACEHOLDER – replace with real data. Use only genuine feedback, with the client's permission.
-export const testimonials = [
+export const testimonials: { title: string; quote: string; name: string; role?: string; aircraft?: string }[] = [
   {
+    title: "Professional and Reliable Service",
     quote:
-      "[Sample testimonial] Placeholder text — replace with a real quote from a client describing the result, the communication, and how the work fitted around their schedule.",
-    name: "[Client name]",
-    role: "[Role, e.g. Chief Pilot]",
-    aircraft: "[Aircraft type]",
+      "The aircraft grooming team did an excellent job. The aircraft looked clean and well presented, and the service was professional from start to finish. Great attention to detail.",
+    name: "Paul Taylor",
   },
   {
+    title: "Excellent Attention to Detail",
     quote:
-      "[Sample testimonial] Placeholder text — replace with a real quote from an operator about turnaround times or fleet consistency.",
-    name: "[Client name]",
-    role: "[Role, e.g. Director of Maintenance]",
-    aircraft: "[Aircraft type]",
+      "From the cabin to the exterior, the attention to detail was impressive. The team took care of the aircraft and delivered a high-quality finish. We appreciate their commitment to quality.",
+    name: "Roman Wesley",
   },
   {
+    title: "A Team You Can Count On",
     quote:
-      "[Sample testimonial] Placeholder text — replace with a real quote from an owner-pilot about the finish or the interior.",
-    name: "[Client name]",
-    role: "[Role, e.g. Owner-pilot]",
-    aircraft: "[Aircraft type]",
+      "Reliable, efficient, and easy to work with. The team understands the importance of aircraft presentation and works carefully around our operational requirements. We would be happy to work with them again.",
+    name: "Lynda Harvey",
   },
 ];
 

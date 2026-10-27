@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { ChevronLeft, ChevronRight, Quote } from "lucide-react";
-import { PlaceholderBadge } from "@/components/ui/PlaceholderBadge";
 import { SectionLabel } from "@/components/ui/SectionLabel";
 import { testimonials } from "@/config/site";
 
@@ -19,8 +18,8 @@ export function Testimonials() {
         <div className="flex flex-wrap items-end justify-between gap-6">
           <div>
             <SectionLabel index="06">PIREPs · Client reports</SectionLabel>
-            <h2 id="testimonials-title" className="mt-4 flex flex-wrap items-center gap-3 text-4xl font-medium text-navy sm:text-5xl">
-              What operators say <PlaceholderBadge />
+            <h2 id="testimonials-title" className="mt-4 text-4xl font-medium text-navy sm:text-5xl">
+              What operators say
             </h2>
           </div>
           <div className="flex gap-2">
@@ -70,13 +69,14 @@ export function Testimonials() {
                 <figure className="grid gap-8 rounded-2xl border border-aluminium bg-white p-8 sm:p-12 lg:grid-cols-[auto_1fr]">
                   <Quote aria-hidden="true" className="size-10 text-sky" strokeWidth={1.4} />
                   <div>
+                    <h3 className="label-mono mb-4 text-horizon">{t.title}</h3>
                     <blockquote className="font-display text-2xl leading-snug text-navy sm:text-3xl">
                       &ldquo;{t.quote}&rdquo;
                     </blockquote>
                     <figcaption className="mt-8 flex flex-wrap items-center gap-x-4 gap-y-1 border-t border-aluminium pt-6">
                       <span className="font-semibold text-navy">{t.name}</span>
-                      <span className="text-slate">{t.role}</span>
-                      <span className="label-mono text-horizon">{t.aircraft}</span>
+                      {t.role && <span className="text-slate">{t.role}</span>}
+                      {t.aircraft && <span className="label-mono text-horizon">{t.aircraft}</span>}
                     </figcaption>
                   </div>
                 </figure>

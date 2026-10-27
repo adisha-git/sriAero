@@ -1,8 +1,6 @@
 import { Gallery } from "@/components/Gallery";
 import { FinalCta } from "@/components/home/FinalCta";
 import { PageHero } from "@/components/ui/PageHero";
-import { PlaceholderBadge } from "@/components/ui/PlaceholderBadge";
-import { site } from "@/config/site";
 import { pageMetadata } from "@/lib/seo";
 
 export const metadata = pageMetadata({
@@ -26,13 +24,6 @@ export default function GalleryPage() {
       />
       <section aria-label="Photo gallery" className="bg-cloud py-16 sm:py-24">
         <div className="container-x">
-          {site.showPlaceholderBadges && (
-            <p className="mb-8 flex flex-wrap items-center gap-3 rounded-xl border border-dashed border-aluminium bg-white p-4 text-sm text-slate">
-              <PlaceholderBadge />
-              Photos shown are licensed stock imagery for layout. Replace them with your own work in
-              <code className="font-mono text-navy">src/content/gallery.ts</code>.
-            </p>
-          )}
           <Gallery />
         </div>
       </section>

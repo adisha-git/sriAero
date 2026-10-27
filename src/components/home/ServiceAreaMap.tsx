@@ -2,11 +2,11 @@ import { Plane } from "lucide-react";
 import { SectionLabel } from "@/components/ui/SectionLabel";
 import { airports } from "@/config/site";
 
-// Simple equirectangular projection of Southern Alberta onto the SVG.
+// Simple equirectangular projection of Southern and Central Alberta onto the SVG.
 const W = 600;
-const H = 560;
+const H = 716;
 const LON = [-116.6, -111.4] as const;
-const LAT = [49.0, 52.6] as const;
+const LAT = [49.0, 53.6] as const;
 const project = (lon: number, lat: number) => [
   ((lon - LON[0]) / (LON[1] - LON[0])) * W,
   ((LAT[1] - lat) / (LAT[1] - LAT[0])) * H,
@@ -28,7 +28,7 @@ const redDeer: [number, number][] = [
 ];
 const hwy2: [number, number][] = [
   [-113.4, 49.0], [-113.4, 49.72], [-113.85, 50.55], [-113.98, 50.9], [-114.05, 51.05],
-  [-114.1, 51.7], [-113.85, 52.27], [-113.7, 52.6],
+  [-114.1, 51.7], [-113.85, 52.27], [-113.7, 52.6], [-113.55, 53.05], [-113.5, 53.6],
 ];
 
 const hub = airports.find((a) => a.code === "CYYC")!;
@@ -58,13 +58,13 @@ export function ServiceAreaMap() {
             Based at CYYC. Ready to come to you.
           </h2>
           <p className="mt-5 text-lg text-mist">
-            We work out of Calgary and cover the airports of Southern Alberta as standard. Your hangar, your FBO, your
+            We work out of Calgary and cover airports from Southern Alberta up to Edmonton as standard. Your hangar, your FBO, your
             schedule.
           </p>
 
           <ul className="mt-10 grid gap-px overflow-hidden rounded-xl border border-aluminium/15 bg-aluminium/15 sm:grid-cols-2">
             {airports.map((a) => (
-              <li key={a.code} className="flex items-baseline gap-4 bg-navy/95 px-5 py-4">
+              <li key={a.code} className="flex items-baseline gap-4 bg-navy/95 px-5 py-4 sm:odd:last:col-span-2">
                 <span className="font-mono text-sky">{a.code}</span>
                 <span className="text-cloud">{a.name}</span>
               </li>
@@ -83,7 +83,7 @@ export function ServiceAreaMap() {
               viewBox={`0 0 ${W} ${H}`}
               className="relative z-[1] h-auto w-full"
               role="img"
-              aria-label="Map of Southern Alberta showing SriAero's service airports: Calgary International, Springbank, Okotoks, High River, Olds-Didsbury and Red Deer"
+              aria-label="Map of Southern and Central Alberta showing SriAero's service airports: Calgary International, Springbank, Okotoks, High River, Olds-Didsbury, Red Deer and Edmonton International"
             >
               {/* British Columbia side */}
               <rect width={W} height={H} fill="#0B1B2B" />
@@ -105,7 +105,7 @@ export function ServiceAreaMap() {
               </text>
 
               {/* range rings around Calgary */}
-              {[70, 140, 210, 280].map((r) => (
+              {[70, 140, 210, 280, 350].map((r) => (
                 <circle key={r} cx={hx} cy={hy} r={r} fill="none" stroke="#8EC5E8" strokeOpacity="0.16" />
               ))}
               <line x1={hx - 300} y1={hy} x2={hx + 400} y2={hy} stroke="#8EC5E8" strokeOpacity="0.1" />
@@ -151,7 +151,7 @@ export function ServiceAreaMap() {
           </div>
           <figcaption className="label-mono mt-3 flex justify-between text-mist">
             <span>Stylised · not for navigation</span>
-            <span>R 280 · CYYC</span>
+            <span>R 350 · CYYC</span>
           </figcaption>
         </figure>
       </div>

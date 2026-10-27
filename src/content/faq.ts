@@ -5,7 +5,7 @@ export const faqs = [
   },
   {
     q: "Which airports do you serve?",
-    a: "We regularly work at Calgary International (CYYC), Springbank (CYBW), Okotoks (CFX2), High River (CEN4), Olds-Didsbury (CEA3) and Red Deer Regional (CYQF). Other Alberta airports and travel across Western Canada are available. Ask, and we'll quote travel separately.",
+    a: "We regularly work at Calgary International (CYYC), Springbank (CYBW), Okotoks (CFX2), High River (CEN4), Olds-Didsbury (CEA3), Red Deer Regional (CYQF) and Edmonton International (CYEG). Other Alberta airports and travel across Western Canada are available. Ask, and we'll quote travel separately.",
   },
   {
     q: "How long does a detail take?",

@@ -18,10 +18,10 @@ export const metadata = pageMetadata({
 
 const reasons: { icon: IconName; title: string; text: string; placeholder?: boolean }[] = [
   { icon: "map-pin", title: "Mobile hangar service", text: "We bring water management, power and products to your hangar or FBO. Your aircraft doesn't need to move." },
-  { icon: "shield-check", title: "Aviation-approved products", text: "Cleaners, polishes and coatings chosen for aircraft paint, aluminium, acrylic and certified interior materials.", placeholder: true },
+  { icon: "shield-check", title: "Aviation-approved products", text: "Cleaners, polishes and coatings chosen for aircraft paint, aluminium, acrylic and certified interior materials." },
   { icon: "file-text", title: "Written standard procedures", text: "Every service follows a written procedure and checklist, so the result doesn't depend on who's holding the polisher." },
   { icon: "user-check", title: "One point of contact", text: "One person schedules, scopes and signs off your work, and knows your aircraft's history." },
-  { icon: "shield", title: "Fully insured", text: "Liability coverage for work on and around aircraft. Certificates available on request.", placeholder: true },
+  { icon: "shield", title: "Fully insured", text: "Liability coverage for work on and around aircraft. Certificates available on request." },
 ];
 
 export default function AboutPage() {

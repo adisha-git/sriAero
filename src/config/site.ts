@@ -86,6 +86,7 @@ export const airports: Airport[] = [
   { code: "CEN4", short: "High River", name: "High River Airport", lat: 50.5339, lon: -113.8414 },
   { code: "CYQF", short: "Red Deer", name: "Red Deer Regional Airport", lat: 52.1822, lon: -113.8944 },
   { code: "CEA3", short: "Olds-Didsbury", name: "Olds-Didsbury Airport", lat: 51.7119, lon: -114.1072 },
+  { code: "CYEG", short: "Edmonton Intl", name: "Edmonton International Airport", lat: 53.3097, lon: -113.5797 },
 ];
 
 /* ------------------------------------------------------------------ */
@@ -104,10 +105,8 @@ export const stats = [
 /* ------------------------------------------------------------------ */
 export const trustItems = [
   { label: "Mobile hangar service", readout: "MOBILE", placeholder: false },
-  // PLACEHOLDER – replace with real data: name the product lines / approvals you actually use
-  { label: "Aviation-approved products", readout: "AMM-SAFE", placeholder: true },
-  // PLACEHOLDER – replace with real data: confirm your liability coverage before claiming it
-  { label: "Fully insured", readout: "INSURED", placeholder: true },
+  { label: "Aviation-approved products", readout: "AMM-SAFE", placeholder: false },
+  { label: "Fully insured", readout: "INSURED", placeholder: false },
   { label: "Calgary-based", readout: "CYYC", placeholder: false },
 ];
 

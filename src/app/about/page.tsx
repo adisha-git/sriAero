@@ -1,4 +1,3 @@
-import { User } from "lucide-react";
 import { FinalCta } from "@/components/home/FinalCta";
 import { Icon, type IconName } from "@/components/ui/Icon";
 import { PageHero } from "@/components/ui/PageHero";
@@ -88,42 +87,24 @@ export default function AboutPage() {
         </div>
       </section>
 
-      <section aria-labelledby="founder-title" className="bg-white py-24 sm:py-32">
-        <div className="container-x grid items-center gap-12 lg:grid-cols-[0.8fr_1.2fr]">
-          <div className="relative">
-            {/* PLACEHOLDER – replace with a portrait of the founder (add to /images-src, run npm run images, use <Picture>) */}
-            <div className="flex aspect-[4/5] flex-col items-center justify-center gap-4 rounded-2xl border border-dashed border-aluminium bg-cloud text-slate">
-              <User aria-hidden="true" className="size-16 text-aluminium" strokeWidth={1} />
-              <PlaceholderBadge />
-              <span className="label-mono text-[0.7rem]">Founder portrait</span>
-            </div>
-          </div>
-          <div>
-            <SectionLabel index="03">Founder</SectionLabel>
-            <h2 id="founder-title" className="mt-4 flex flex-wrap items-center gap-3 text-4xl font-medium text-navy sm:text-5xl">
-              {site.founder.name} <PlaceholderBadge />
+      {certifications.length > 0 && (
+        <section aria-labelledby="credentials-title" className="bg-white py-24 sm:py-32">
+          <div className="container-x">
+            <SectionLabel index="03">Credentials</SectionLabel>
+            <h2 id="credentials-title" className="mt-4 flex flex-wrap items-center gap-3 text-4xl font-medium text-navy sm:text-5xl">
+              Insurance, training & memberships <PlaceholderBadge />
             </h2>
-            <p className="label-mono mt-3 text-horizon">{site.founder.role}</p>
-            <p className="mt-6 text-lg text-slate">{site.founder.bio}</p>
-
-            {certifications.length > 0 && (
-              <div className="mt-10 border-t border-aluminium pt-8">
-                <h3 className="label-mono flex items-center gap-3 text-navy">
-                  Insurance, training & memberships <PlaceholderBadge />
-                </h3>
-                <ul className="mt-5 grid gap-4 sm:grid-cols-3">
-                  {certifications.map((c) => (
-                    <li key={c.name} className="rounded-xl border border-aluminium p-4">
-                      <p className="font-display font-medium text-navy">{c.name}</p>
-                      <p className="mt-1 text-sm text-slate">{c.detail}</p>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
+            <ul className="mt-10 grid gap-4 sm:grid-cols-3">
+              {certifications.map((c) => (
+                <li key={c.name} className="rounded-xl border border-aluminium p-4">
+                  <p className="font-display font-medium text-navy">{c.name}</p>
+                  <p className="mt-1 text-sm text-slate">{c.detail}</p>
+                </li>
+              ))}
+            </ul>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       <section aria-label="Alberta skies" className="relative h-[42vh] min-h-72 overflow-hidden bg-navy">
         <Picture name="rockies-gondola" alt="Rocky Mountain peaks under a dramatic cloudy sky near Banff, Alberta" className="h-full w-full object-cover opacity-80" />

@@ -55,13 +55,6 @@ export const site = {
     linkedin: "https://www.linkedin.com/company/sriaero", // PLACEHOLDER – replace with real data
   },
 
-  founder: {
-    name: "[Founder Name]", // PLACEHOLDER – replace with real data
-    role: "Founder & Lead Detailer", // PLACEHOLDER – replace with real data
-    // PLACEHOLDER – replace with real data
-    bio: "[Founder bio — two or three sentences on your aviation background, how you got into detailing, and what you hold yourself to on every aircraft.]",
-  },
-
   /** Year the business started — used for "Est." label. */
   established: "2024", // PLACEHOLDER – replace with real data
 

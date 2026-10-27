@@ -29,9 +29,9 @@ export const site = {
   showPlaceholderBadges: true, // PLACEHOLDER – set to false once everything below is real
 
   contact: {
-    phoneDisplay: "(403) 555-0142", // PLACEHOLDER – replace with real data
-    phoneHref: "tel:+14035550142", // PLACEHOLDER – replace with real data
-    email: "hangar@sriaero.ca", // PLACEHOLDER – replace with real data
+    phoneDisplay: "(403) 464-8302",
+    phoneHref: "tel:+14034648302",
+    email: "info@sriaero.ca",
     hours: "Mon–Sat · 07:00–19:00 MT · Overnight and weekend slots by arrangement", // PLACEHOLDER – replace with real data
     responseTime: "usually within one business day", // PLACEHOLDER – replace with real data
   },

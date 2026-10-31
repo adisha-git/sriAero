@@ -57,16 +57,6 @@ export const site = {
 
   /** Year the business started — used for "Est." label. */
   established: "2024", // PLACEHOLDER – replace with real data
-
-  /**
-   * Quote form. The endpoint comes from NEXT_PUBLIC_FORM_ENDPOINT (see .env.example).
-   * TODO: create a Formspree form (https://formspree.io), copy its endpoint into .env.local
-   * and into your host's environment variables. Or set NEXT_PUBLIC_FORM_PROVIDER=netlify.
-   */
-  form: {
-    endpoint: process.env.NEXT_PUBLIC_FORM_ENDPOINT ?? "",
-    provider: (process.env.NEXT_PUBLIC_FORM_PROVIDER ?? "formspree") as "formspree" | "netlify",
-  },
 };
 
 /* ------------------------------------------------------------------ */

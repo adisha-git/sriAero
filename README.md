@@ -2,7 +2,7 @@
 
 Marketing site for SriAero, a mobile aircraft detailing company based in Calgary, Alberta.
 
-It's built with Next.js 16 (App Router), TypeScript, Tailwind CSS v4 and Framer Motion, and exported as a fully static site (`output: "export"`). There's no backend: the quote form posts to Formspree or Netlify Forms.
+It's built with Next.js 16 (App Router), TypeScript, Tailwind CSS v4 and Framer Motion, and deployed to Vercel. Pages are prerendered; the quote form posts to a route handler that emails enquiries through Resend.
 
 ---
 
@@ -19,8 +19,8 @@ Other scripts:
 
 | Command           | What it does                                                         |
 | ----------------- | -------------------------------------------------------------------- |
-| `npm run build`   | Builds the static site into `/out`                                   |
-| `npm run preview` | Serves `/out` locally to check the production build                  |
+| `npm run build`   | Builds the production site                                           |
+| `npm run start`   | Serves the production build locally (run `npm run build` first)      |
 | `npm run lint`    | Runs ESLint                                                          |
 | `npm run images`  | Converts photos in `/images-src` into responsive WebP files          |
 | `npm run brand`   | Regenerates the logo, favicons and OG image from `scripts/build-brand.mjs` |
@@ -69,46 +69,27 @@ For real before/after pairs in the gallery, add `before: "your-before-photo"` to
 
 ## Connect the quote form
 
-The form at `/contact/` validates in the browser, then sends the request to one of two providers. Configure it with environment variables (see `.env.example`):
+The form at `/contact/` validates in the browser, then posts JSON to the `/api/contact/` route handler (`src/app/api/contact/route.ts`). The route validates everything again, checks the hidden honeypot field, and emails the enquiry through [Resend](https://resend.com) as plain text, with **Reply-To** set to the visitor's email address. Field options and length limits shared by both sides live in `src/lib/quote.ts`.
 
-### Option A: Formspree (default, works on any host)
+It needs three server-side environment variables (see `.env.example`). Never prefix them with `NEXT_PUBLIC_`:
 
-1. Create a free form at <https://formspree.io> and copy its endpoint, e.g. `https://formspree.io/f/abcdwxyz`.
-2. Create `.env.local`:
-   ```bash
-   NEXT_PUBLIC_FORM_ENDPOINT=https://formspree.io/f/abcdwxyz
-   ```
-3. Add the same variable in your host's environment settings (Netlify or Vercel), or set it before running `npm run build` for cPanel uploads.
+| Variable             | Value                                                                 |
+| -------------------- | --------------------------------------------------------------------- |
+| `RESEND_API_KEY`     | A Resend API key with sending access                                  |
+| `CONTACT_FROM_EMAIL` | Sender on a domain verified in Resend, e.g. `SriAero Website <quotes@sriaero.ca>` |
+| `CONTACT_TO_EMAIL`   | Inbox that receives enquiries, e.g. `info@sriaero.ca`                 |
 
-### Option B: Netlify Forms (Netlify hosting only)
-
-1. Set `NEXT_PUBLIC_FORM_PROVIDER=netlify` and leave `NEXT_PUBLIC_FORM_ENDPOINT` empty.
-2. Deploy to Netlify. The form is already marked `data-netlify="true"` with a honeypot field, so Netlify detects it at deploy time.
-3. In Netlify, go to **Forms** and turn on email notifications.
-
-If neither is configured, `npm run dev` simulates a successful submission so you can see the "Cleared for takeoff" state. A production build shows an error with your phone number and email instead.
+To test locally, put them in `.env.local` and run `npm run dev`. If any are missing, the form shows its error message with your phone number and email.
 
 ---
 
 ## Deploy
 
-`npm run build` produces a self-contained static site in `/out`.
-
-### Netlify
-
-`netlify.toml` is included. Connect the repository in Netlify. The build command (`npm run build`) and publish directory (`out`) are picked up automatically. Add your form environment variable under **Site configuration → Environment variables**.
+The site is a regular Next.js app (not a static export), because the quote form needs a server route.
 
 ### Vercel
 
-Import the repository. Vercel detects Next.js and the static export, so no extra settings are needed. Add `NEXT_PUBLIC_FORM_ENDPOINT` under **Settings → Environment Variables**.
-
-### cPanel or any static host
-
-1. Set your form endpoint in `.env.local`.
-2. Run `npm run build`.
-3. Upload the **contents** of `/out` to `public_html`. The included `.htaccess` sets the 404 page, compression and caching for Apache.
-
-Pages are exported as `/page/index.html` (`trailingSlash: true`), so clean URLs work on plain static hosting with no rewrites.
+Import the repository. Vercel detects Next.js, so no extra build settings are needed. Add the three variables above under **Settings → Environment Variables**.
 
 ### Before launch
 

@@ -3,21 +3,7 @@
 import { useRef, useState } from "react";
 import { AlertTriangle, Loader2, Send } from "lucide-react";
 import { airports, site } from "@/config/site";
-
-export const serviceOptions = [
-  "Exterior wet wash",
-  "Waterless dry wash",
-  "Brightwork polishing",
-  "Paint correction",
-  "Ceramic coating / sealant",
-  "Window & acrylic restoration",
-  "Full cabin detail",
-  "Leather care or repair",
-  "De-ice boots / belly / gear",
-  "Recurring plan",
-  "Fleet program",
-  "Pre-sale / seasonal prep",
-];
+import { emailPattern, honeypotField, maxLengths, serviceOptions } from "@/lib/quote";
 
 type Values = {
   name: string;
@@ -51,7 +37,7 @@ function validate(v: Values): Errors {
   const e: Errors = {};
   if (v.name.trim().length < 2) e.name = "Please enter your name.";
   if (v.phone.replace(/\D/g, "").length < 10) e.phone = "Please enter a phone number, including area code.";
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v.email.trim())) e.email = "Please enter a valid email address.";
+  if (!emailPattern.test(v.email.trim())) e.email = "Please enter a valid email address.";
   if (v.aircraft.trim().length < 2) e.aircraft = "Please tell us the aircraft type or registration.";
   if (!v.airport) e.airport = "Please choose a home airport.";
   if (v.airport === "Other" && v.airportOther.trim().length < 2) e.airportOther = "Please tell us which airport.";
@@ -67,7 +53,9 @@ export function QuoteForm() {
   const [errors, setErrors] = useState<Errors>({});
   const [touched, setTouched] = useState<Partial<Record<keyof Values, boolean>>>({});
   const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
+  const [sentName, setSentName] = useState("");
   const formRef = useRef<HTMLFormElement>(null);
+  const sending = useRef(false);
 
   const set = <K extends keyof Values>(key: K, value: Values[K]) => {
     const next = { ...values, [key]: value };
@@ -81,6 +69,7 @@ export function QuoteForm() {
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    if (sending.current) return; // already transmitting
     const found = validate(values);
     setErrors(found);
     setTouched(Object.fromEntries(fieldOrder.map((k) => [k, true])));
@@ -91,35 +80,37 @@ export function QuoteForm() {
       return;
     }
 
-    const data = new FormData(e.currentTarget);
-    if (data.get("_gotcha")) return; // bot honeypot
+    const honeypot = new FormData(e.currentTarget).get(honeypotField) ?? "";
+    sending.current = true;
     setStatus("sending");
 
     try {
-      if (site.form.provider === "netlify") {
-        const body = new URLSearchParams();
-        data.forEach((v, k) => body.append(k, String(v)));
-        const res = await fetch("/", { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body: body.toString() });
-        if (!res.ok) throw new Error(`Netlify responded ${res.status}`);
-      } else if (site.form.endpoint) {
-        const res = await fetch(site.form.endpoint, { method: "POST", headers: { Accept: "application/json" }, body: data });
-        if (!res.ok) throw new Error(`Form endpoint responded ${res.status}`);
-      } else if (process.env.NODE_ENV !== "production") {
-        // TODO: set NEXT_PUBLIC_FORM_ENDPOINT (Formspree) or NEXT_PUBLIC_FORM_PROVIDER=netlify. See README.
-        console.warn("[QuoteForm] No form endpoint configured; simulating a successful submission in development.");
-        await new Promise((r) => setTimeout(r, 900));
-      } else {
-        throw new Error("No form endpoint configured");
+      const res = await fetch("/api/contact/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify({ ...values, [honeypotField]: honeypot }),
+      });
+      const result = (await res.json().catch(() => null)) as { ok?: boolean; fields?: Errors } | null;
+      if (!res.ok || !result?.ok) {
+        // The server re-validates; show any field errors it found next to the fields.
+        if (result?.fields && Object.keys(result.fields).length > 0) setErrors(result.fields);
+        setStatus("error");
+        return;
       }
+      setSentName(values.name.trim().split(" ")[0]);
+      setValues(initial);
+      setErrors({});
+      setTouched({});
       setStatus("sent");
       formRef.current?.closest("section")?.scrollIntoView({ behavior: "smooth", block: "start" });
-    } catch (err) {
-      console.error(err);
+    } catch {
       setStatus("error");
+    } finally {
+      sending.current = false;
     }
   }
 
-  if (status === "sent") return <Cleared name={values.name.split(" ")[0]} />;
+  if (status === "sent") return <Cleared name={sentName} />;
 
   const err = (k: keyof Values) => (touched[k] ? errors[k] : undefined);
   const describe = (k: keyof Values) => (err(k) ? `${k}-error` : undefined);
@@ -133,34 +124,31 @@ export function QuoteForm() {
       ref={formRef}
       name="quote"
       method="POST"
-      data-netlify="true"
-      netlify-honeypot="_gotcha"
       noValidate
       onSubmit={onSubmit}
       className="space-y-6"
     >
-      <input type="hidden" name="form-name" value="quote" />
-      <p className="hidden">
+      <p className="hidden" aria-hidden="true">
         <label>
-          Leave this empty: <input name="_gotcha" tabIndex={-1} autoComplete="off" />
+          Leave this empty: <input name={honeypotField} tabIndex={-1} autoComplete="off" />
         </label>
       </p>
 
       <div className="grid gap-6 sm:grid-cols-2">
         <Field id="name" label="Name" required error={err("name")}>
-          <input id="name" name="name" data-field="name" autoComplete="name" value={values.name} onChange={(e) => set("name", e.target.value)} onBlur={() => blur("name")} aria-invalid={!!err("name")} aria-describedby={describe("name")} aria-required="true" className={inputClass("name")} />
+          <input id="name" name="name" data-field="name" maxLength={maxLengths.name} autoComplete="name" value={values.name} onChange={(e) => set("name", e.target.value)} onBlur={() => blur("name")} aria-invalid={!!err("name")} aria-describedby={describe("name")} aria-required="true" className={inputClass("name")} />
         </Field>
-        <Field id="company" label="Company" hint="Optional">
-          <input id="company" name="company" data-field="company" autoComplete="organization" value={values.company} onChange={(e) => set("company", e.target.value)} className={inputClass("company")} />
+        <Field id="company" label="Company" hint="Optional" error={err("company")}>
+          <input id="company" name="company" data-field="company" maxLength={maxLengths.company} autoComplete="organization" value={values.company} onChange={(e) => set("company", e.target.value)} className={inputClass("company")} />
         </Field>
         <Field id="phone" label="Phone" required error={err("phone")}>
-          <input id="phone" name="phone" data-field="phone" type="tel" inputMode="tel" autoComplete="tel" placeholder="(403) 000-0000" value={values.phone} onChange={(e) => set("phone", e.target.value)} onBlur={() => blur("phone")} aria-invalid={!!err("phone")} aria-describedby={describe("phone")} aria-required="true" className={inputClass("phone")} />
+          <input id="phone" name="phone" data-field="phone" maxLength={maxLengths.phone} type="tel" inputMode="tel" autoComplete="tel" placeholder="(403) 000-0000" value={values.phone} onChange={(e) => set("phone", e.target.value)} onBlur={() => blur("phone")} aria-invalid={!!err("phone")} aria-describedby={describe("phone")} aria-required="true" className={inputClass("phone")} />
         </Field>
         <Field id="email" label="Email" required error={err("email")}>
-          <input id="email" name="email" data-field="email" type="email" autoComplete="email" value={values.email} onChange={(e) => set("email", e.target.value)} onBlur={() => blur("email")} aria-invalid={!!err("email")} aria-describedby={describe("email")} aria-required="true" className={inputClass("email")} />
+          <input id="email" name="email" data-field="email" maxLength={maxLengths.email} type="email" autoComplete="email" value={values.email} onChange={(e) => set("email", e.target.value)} onBlur={() => blur("email")} aria-invalid={!!err("email")} aria-describedby={describe("email")} aria-required="true" className={inputClass("email")} />
         </Field>
         <Field id="aircraft" label="Aircraft type or registration" required error={err("aircraft")}>
-          <input id="aircraft" name="aircraft" data-field="aircraft" placeholder="e.g. King Air 350 · C-GXXX" value={values.aircraft} onChange={(e) => set("aircraft", e.target.value)} onBlur={() => blur("aircraft")} aria-invalid={!!err("aircraft")} aria-describedby={describe("aircraft")} aria-required="true" className={inputClass("aircraft")} />
+          <input id="aircraft" name="aircraft" data-field="aircraft" maxLength={maxLengths.aircraft} placeholder="e.g. King Air 350 · C-GXXX" value={values.aircraft} onChange={(e) => set("aircraft", e.target.value)} onBlur={() => blur("aircraft")} aria-invalid={!!err("aircraft")} aria-describedby={describe("aircraft")} aria-required="true" className={inputClass("aircraft")} />
         </Field>
         <Field id="airport" label="Home airport" required error={err("airport")}>
           <select id="airport" name="airport" data-field="airport" value={values.airport} onChange={(e) => set("airport", e.target.value)} onBlur={() => blur("airport")} aria-invalid={!!err("airport")} aria-describedby={describe("airport")} aria-required="true" className={`${inputClass("airport")} appearance-none bg-[url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%231E4D7B%22 stroke-width=%222%22><path d=%22m6 9 6 6 6-6%22/></svg>')] bg-[length:18px] bg-[right_1rem_center] bg-no-repeat pr-10`}>
@@ -175,7 +163,7 @@ export function QuoteForm() {
         </Field>
         {values.airport === "Other" && (
           <Field id="airportOther" label="Which airport?" required error={err("airportOther")} className="sm:col-span-2">
-            <input id="airportOther" name="airport_other" data-field="airportOther" value={values.airportOther} onChange={(e) => set("airportOther", e.target.value)} onBlur={() => blur("airportOther")} aria-invalid={!!err("airportOther")} aria-describedby={describe("airportOther")} aria-required="true" className={inputClass("airportOther")} />
+            <input id="airportOther" name="airport_other" data-field="airportOther" maxLength={maxLengths.airportOther} value={values.airportOther} onChange={(e) => set("airportOther", e.target.value)} onBlur={() => blur("airportOther")} aria-invalid={!!err("airportOther")} aria-describedby={describe("airportOther")} aria-required="true" className={inputClass("airportOther")} />
           </Field>
         )}
       </div>
@@ -219,8 +207,8 @@ export function QuoteForm() {
         <Field id="date" label="Preferred date" hint="Optional" error={err("date")}>
           <input id="date" name="preferred_date" data-field="date" type="date" suppressHydrationWarning min={new Date().toISOString().slice(0, 10)} value={values.date} onChange={(e) => set("date", e.target.value)} onBlur={() => blur("date")} aria-invalid={!!err("date")} aria-describedby={describe("date")} className={inputClass("date")} />
         </Field>
-        <Field id="message" label="Anything else?" hint="Optional">
-          <textarea id="message" name="message" data-field="message" rows={4} placeholder="Condition, timing, hangar access, ground time available…" value={values.message} onChange={(e) => set("message", e.target.value)} className={`${inputClass("message")} min-h-32 resize-y`} />
+        <Field id="message" label="Anything else?" hint="Optional" error={err("message")}>
+          <textarea id="message" name="message" data-field="message" maxLength={maxLengths.message} rows={4} placeholder="Condition, timing, hangar access, ground time available…" value={values.message} onChange={(e) => set("message", e.target.value)} className={`${inputClass("message")} min-h-32 resize-y`} />
         </Field>
       </div>
 

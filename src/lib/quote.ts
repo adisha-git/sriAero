@@ -29,3 +29,9 @@ export const emailPattern = /^[^\s@<>()",;:]+@[^\s@<>()",;:]+\.[^\s@<>()",;:]{2,
 
 /** Name of the hidden honeypot field. Real visitors never fill it in. */
 export const honeypotField = "_gotcha";
+
+/** Turnstile action name set on the widget and checked by the server. */
+export const turnstileAction = "quote";
+
+/** Cloudflare's documented maximum token length. */
+export const turnstileTokenMaxLength = 2048;

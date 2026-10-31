@@ -1,9 +1,11 @@
 import { Resend } from "resend";
 import { airports } from "@/config/site";
-import { emailPattern, honeypotField, maxLengths, serviceOptions } from "@/lib/quote";
+import { checkRateLimit, clientIp, missingSecurityConfig, verifyTurnstile } from "@/lib/contact-security";
+import { emailPattern, honeypotField, maxLengths, serviceOptions, turnstileTokenMaxLength } from "@/lib/quote";
 
 // Enquiries are emailed through Resend. Credentials and addresses stay server-side:
-// RESEND_API_KEY, CONTACT_FROM_EMAIL and CONTACT_TO_EMAIL (see .env.example).
+// RESEND_API_KEY, CONTACT_FROM_EMAIL and CONTACT_TO_EMAIL, plus the Turnstile and Upstash keys (see .env.example).
+// Order: rate limit → size/parse → honeypot → field validation → Turnstile → Resend.
 
 const MAX_BODY_BYTES = 20_000;
 const airportValues = new Set([...airports.map((a) => `${a.code} · ${a.name}`), "Other"]);
@@ -102,17 +104,48 @@ function emailText(q: Quote): string {
 
 const json = (body: unknown, status = 200) => Response.json(body, { status });
 
+const securityUnavailable = () =>
+  json(
+    {
+      ok: false,
+      error: "security_unavailable",
+      message: "Our spam protection is temporarily unavailable, so your request wasn't sent. Please try again in a few minutes.",
+    },
+    503,
+  );
+
 export async function POST(request: Request) {
   const apiKey = process.env.RESEND_API_KEY;
   const from = process.env.CONTACT_FROM_EMAIL;
   const to = process.env.CONTACT_TO_EMAIL;
-  if (!apiKey || !from || !to) {
-    console.error("[contact] Missing RESEND_API_KEY, CONTACT_FROM_EMAIL or CONTACT_TO_EMAIL.");
+  const missingSecurity = missingSecurityConfig();
+  if (!apiKey || !from || !to || missingSecurity.length > 0) {
+    console.error("[contact] Missing configuration. Check RESEND_API_KEY, CONTACT_FROM_EMAIL, CONTACT_TO_EMAIL", missingSecurity.join(", "));
     return json({ ok: false, error: "not_configured" }, 500);
+  }
+
+  // Rate limit every request before any parsing or third-party calls.
+  const ip = clientIp(request);
+  const limit = await checkRateLimit(ip);
+  if (limit.ok === "unavailable") {
+    console.error("[contact] Rate limiter unavailable.");
+    return securityUnavailable();
+  }
+  if (!limit.ok) {
+    const minutes = Math.ceil(limit.retryAfterSeconds / 60);
+    return Response.json(
+      {
+        ok: false,
+        error: "rate_limited",
+        message: `Too many quote requests from your network. Please try again in ${minutes} minute${minutes === 1 ? "" : "s"}.`,
+      },
+      { status: 429, headers: { "Retry-After": String(limit.retryAfterSeconds) } },
+    );
   }
 
   let body: Record<string, unknown>;
   try {
+    if (Number(request.headers.get("content-length") ?? 0) > MAX_BODY_BYTES) return json({ ok: false, error: "too_large" }, 413);
     const raw = await request.text();
     if (raw.length > MAX_BODY_BYTES) return json({ ok: false, error: "too_large" }, 413);
     const parsed: unknown = JSON.parse(raw);
@@ -127,6 +160,25 @@ export async function POST(request: Request) {
 
   const { quote, errors } = parse(body);
   if (Object.keys(errors).length > 0) return json({ ok: false, error: "invalid_fields", fields: errors }, 400);
+
+  const token = typeof body.turnstileToken === "string" ? body.turnstileToken : "";
+  if (!token || token.length > turnstileTokenMaxLength) {
+    return json(
+      { ok: false, error: "verification_required", message: "Please complete the security check, then send your request again." },
+      400,
+    );
+  }
+  const verification = await verifyTurnstile(token, ip);
+  if (verification === "unavailable") {
+    console.error("[contact] Turnstile verification unavailable.");
+    return securityUnavailable();
+  }
+  if (verification === "invalid") {
+    return json(
+      { ok: false, error: "verification_failed", message: "The security check failed or expired. Please complete it again, then resend." },
+      403,
+    );
+  }
 
   try {
     const { data, error } = await new Resend(apiKey).emails.send({

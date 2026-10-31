@@ -3,7 +3,11 @@
 import { useRef, useState } from "react";
 import { AlertTriangle, Loader2, Send } from "lucide-react";
 import { airports, site } from "@/config/site";
-import { emailPattern, honeypotField, maxLengths, serviceOptions } from "@/lib/quote";
+import { emailPattern, honeypotField, maxLengths, serviceOptions, turnstileAction } from "@/lib/quote";
+import { Turnstile, type TurnstileHandle } from "./Turnstile";
+
+// Public by design: Turnstile site keys are embedded in the page. The secret key stays on the server.
+const turnstileSiteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ?? "";
 
 type Values = {
   name: string;
@@ -54,7 +58,10 @@ export function QuoteForm() {
   const [touched, setTouched] = useState<Partial<Record<keyof Values, boolean>>>({});
   const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
   const [sentName, setSentName] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+  const [turnstileToken, setTurnstileToken] = useState("");
   const formRef = useRef<HTMLFormElement>(null);
+  const turnstileRef = useRef<TurnstileHandle>(null);
   const sending = useRef(false);
 
   const set = <K extends keyof Values>(key: K, value: Values[K]) => {
@@ -80,20 +87,29 @@ export function QuoteForm() {
       return;
     }
 
+    if (!turnstileToken) {
+      setErrorMessage("Please complete the security check, then send your request again.");
+      setStatus("error");
+      return;
+    }
+
     const honeypot = new FormData(e.currentTarget).get(honeypotField) ?? "";
     sending.current = true;
+    setErrorMessage("");
     setStatus("sending");
 
     try {
       const res = await fetch("/api/contact/", {
         method: "POST",
         headers: { "Content-Type": "application/json", Accept: "application/json" },
-        body: JSON.stringify({ ...values, [honeypotField]: honeypot }),
+        body: JSON.stringify({ ...values, [honeypotField]: honeypot, turnstileToken }),
       });
-      const result = (await res.json().catch(() => null)) as { ok?: boolean; fields?: Errors } | null;
+      const result = (await res.json().catch(() => null)) as { ok?: boolean; fields?: Errors; message?: string } | null;
       if (!res.ok || !result?.ok) {
         // The server re-validates; show any field errors it found next to the fields.
         if (result?.fields && Object.keys(result.fields).length > 0) setErrors(result.fields);
+        setErrorMessage(result?.message ?? "");
+        turnstileRef.current?.reset(); // tokens are single-use; get a fresh one for the retry
         setStatus("error");
         return;
       }
@@ -104,6 +120,8 @@ export function QuoteForm() {
       setStatus("sent");
       formRef.current?.closest("section")?.scrollIntoView({ behavior: "smooth", block: "start" });
     } catch {
+      setErrorMessage("");
+      turnstileRef.current?.reset();
       setStatus("error");
     } finally {
       sending.current = false;
@@ -212,11 +230,25 @@ export function QuoteForm() {
         </Field>
       </div>
 
+      {turnstileSiteKey && (
+        <Turnstile
+          ref={turnstileRef}
+          siteKey={turnstileSiteKey}
+          action={turnstileAction}
+          onToken={setTurnstileToken}
+          onUnavailable={() => {
+            setErrorMessage("The security check couldn't load. Please refresh the page and try again.");
+            setStatus("error");
+          }}
+          className="min-h-[65px]"
+        />
+      )}
+
       {status === "error" && (
         <div role="alert" className="flex gap-3 rounded-xl border border-red-700/30 bg-red-50 p-4 text-red-900">
           <AlertTriangle aria-hidden="true" className="mt-0.5 size-5 shrink-0" />
           <p>
-            Your request didn&apos;t go through. Please try again, or call{" "}
+            {errorMessage ? `${errorMessage} You can also call ` : <>Your request didn&apos;t go through. Please try again, or call </>}
             <a href={site.contact.phoneHref} className="font-semibold underline">
               {site.contact.phoneDisplay}
             </a>{" "}

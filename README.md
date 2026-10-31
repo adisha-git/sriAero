@@ -79,7 +79,25 @@ It needs three server-side environment variables (see `.env.example`). Never pre
 | `CONTACT_FROM_EMAIL` | Sender on a domain verified in Resend, e.g. `SriAero Website <quotes@sriaero.ca>` |
 | `CONTACT_TO_EMAIL`   | Inbox that receives enquiries, e.g. `info@sriaero.ca`                 |
 
-To test locally, put them in `.env.local` and run `npm run dev`. If any are missing, the form shows its error message with your phone number and email.
+### Spam protection
+
+Before anything is sent, `/api/contact/` checks, in order:
+
+1. **Rate limit**: 5 requests per 10 minutes per client IP, shared across all serverless instances through Upstash Redis (`src/lib/contact-security.ts`). Over the limit returns `429` with a `Retry-After` header.
+2. **Request size, honeypot and field validation.**
+3. **Cloudflare Turnstile**: the widget's token is verified with Cloudflare, including the hostname and the `quote` action. Missing, invalid, expired or reused tokens are rejected.
+
+If Upstash or Cloudflare can't be reached, the email is **not** sent and the visitor sees an error, with their entries kept so they can retry.
+
+| Variable                         | Value                                                                  |
+| -------------------------------- | ---------------------------------------------------------------------- |
+| `NEXT_PUBLIC_TURNSTILE_SITE_KEY` | Turnstile site key (public by design)                                  |
+| `TURNSTILE_SECRET_KEY`           | Turnstile secret key                                                   |
+| `TURNSTILE_ALLOWED_HOSTNAMES`    | Optional. Comma-separated; defaults to `www.sriaero.ca,sriaero.ca`     |
+| `UPSTASH_REDIS_REST_URL`         | Upstash Redis REST URL (or `KV_REST_API_URL` from the Vercel integration) |
+| `UPSTASH_REDIS_REST_TOKEN`       | Upstash Redis REST token (or `KV_REST_API_TOKEN`)                      |
+
+To test locally, put the variables in `.env.local` and run `npm run dev`. Cloudflare's [test keys](https://developers.cloudflare.com/turnstile/troubleshooting/testing/) work outside Vercel production if you set `TURNSTILE_ALLOWED_HOSTNAMES=example.com`. If any variable is missing, the form shows its error message with your phone number and email.
 
 ---
 

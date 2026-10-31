@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, JetBrains_Mono, Space_Grotesk } from "next/font/google";
+import { Inter, Space_Grotesk } from "next/font/google";
+import localFont from "next/font/local";
 import { Footer } from "@/components/layout/Footer";
 import { Header } from "@/components/layout/Header";
 import { MobileCallBar } from "@/components/layout/MobileCallBar";
@@ -12,10 +13,14 @@ import "./globals.css";
 
 const display = Space_Grotesk({ variable: "--font-space-grotesk", subsets: ["latin"], display: "swap" });
 const sans = Inter({ variable: "--font-inter", subsets: ["latin"], display: "swap" });
-const mono = JetBrains_Mono({
+// Self-hosted (latin, from @fontsource/jetbrains-mono): Google Fonts intermittently serves this family's static
+// weights from URLs next/font/google can't parse, which fails production builds.
+const mono = localFont({
   variable: "--font-jetbrains-mono",
-  subsets: ["latin"],
-  weight: ["400", "500"],
+  src: [
+    { path: "../fonts/jetbrains-mono-latin-400-normal.woff2", weight: "400", style: "normal" },
+    { path: "../fonts/jetbrains-mono-latin-500-normal.woff2", weight: "500", style: "normal" },
+  ],
   display: "swap",
   // Small labels only, so don't let it compete with the heading font for early bandwidth.
   preload: false,

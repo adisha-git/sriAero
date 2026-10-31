@@ -236,7 +236,7 @@ export function QuoteForm() {
         <button
           type="submit"
           disabled={status === "sending"}
-          className="shine inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-amber px-7 font-display font-semibold text-navy transition-colors hover:bg-amber-300 disabled:opacity-70"
+          className="shine inline-flex min-h-12 shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-full bg-amber px-7 font-display font-semibold text-navy transition-colors hover:bg-amber-300 disabled:opacity-70"
         >
           {status === "sending" ? (
             <>
